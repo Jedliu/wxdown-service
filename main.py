@@ -13,11 +13,11 @@ def main():
 
     print(f"mitmproxy has started successfully on {proxy_address}")
 
-    # 设置系统代理
-    # watcher.start_websocket()
     # 检查证书是否安装
 
     # 检查系统代理是否设置正确
+
+    watcher.start()
 
 
 if __name__ == '__main__':
