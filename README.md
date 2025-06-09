@@ -27,6 +27,8 @@ pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.p
 由于 macOS 系统要求必须签名才能分发应用程序，所以从 [Releases](https://github.com/wechat-article/wxdown-service/releases) 下载的 macOS 版本不一定能用，这种情况下
 推荐从源码自己进行构建。构建步骤如下：
 
+> 如果有大佬知道其他能够解决签名问题的话，不惜赐教。
+
 ### 1. 下载源码
 ```shell
 git clone git@github.com:wechat-article/wxdown-service.git
