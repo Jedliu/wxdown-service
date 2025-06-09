@@ -81,6 +81,7 @@ async def main(notification_queue):
             logger.info(f"websocket 端口: {port}")
             print(f"WebSocket 监听地址: ws://localhost:{port}")
             print("\n所有服务已启动完毕! \n\n请配置网站的 Credentials 设置以抓取阅读量等数据")
+            break
 
         logger.info(f"websocket 服务启动完毕")
         await server.serve_forever()
@@ -94,7 +95,7 @@ def start():
     notification_queue = asyncio.Queue()
     event_handler = CredentialsFileHandler(CREDENTIALS_JSON_FILE, loop, notification_queue)
     observer = Observer()
-    observer.schedule(event_handler, CREDENTIALS_JSON_FILE, recursive=True)
+    observer.schedule(event_handler, str(SRC_PATH), recursive=True)
 
     try:
         observer.start()
