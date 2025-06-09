@@ -89,6 +89,7 @@ async def main(notification_queue):
 
 
 def start():
+    Path(CREDENTIALS_JSON_FILE).parent.mkdir(parents=True, exist_ok=True)
     Path(CREDENTIALS_JSON_FILE).touch()
 
     loop = asyncio.new_event_loop()
