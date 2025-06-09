@@ -1,5 +1,4 @@
 import wincertstore
-import os
 
 
 def is_certificate_installed(cert_name = "mitmproxy"):

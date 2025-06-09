@@ -1,9 +1,10 @@
+import platform
 import re
 import urllib.request
 
 import requests
 
-from cert import macos
+from cert import macos, win
 
 
 # 检查代理是否正确
@@ -24,7 +25,9 @@ def is_proxy_correct(target_proxy_address):
 # 检查证书是否安装
 def wait_until_certificate_installed():
     while True:
-        if macos.is_certificate_installed('mitmproxy'):
+        if platform.system() == 'Darwin' and macos.is_certificate_installed('mitmproxy'):
+            break
+        elif platform.system() == 'Windows' and win.is_certificate_installed('mitmproxy'):
             break
         else:
             input(
