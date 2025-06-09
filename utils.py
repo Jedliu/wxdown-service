@@ -7,12 +7,17 @@ from logger import logger
 
 
 # 检查代理是否正确
-def is_proxy_correct(target_proxy_address):
+def is_proxy_setting(target_proxy_address):
     proxy = urllib.request.getproxies()
     logger.debug(f"检测到系统代理设置为: {proxy}")
     logger.debug(f"mitmproxy 代理为: {target_proxy_address}")
-    response = requests.get('http://mitm.it', proxies=proxy).text
-    logger.debug(f"检测 http://mitm.it 代理: {response}")
+
+    try:
+        response = requests.get('http://mitm.it', proxies=proxy).text
+    except requests.exceptions.ProxyError as e:
+        print(f"代理配置有误，请检查设置")
+        logger.error(f"检测 http://mitm.it 代理时出错: {e}")
+        return False
 
     is_match = re.search(r'If you can see this, traffic is not passing through mitmproxy', response)
     if is_match or proxy['http'] != target_proxy_address['http'] or proxy['https'] != target_proxy_address['https']:
@@ -31,16 +36,16 @@ def wait_until_certificate_installed():
             break
         else:
             input(
-                "系统中未检测到 mitmproxy 的证书，请进行手动安装。\n证书安装教程请参考: https://docs.mitmproxy.org/stable/concepts/certificates/#installing-the-mitmproxy-ca-certificate-manually\n\n证书安装后请按任意键继续")
+                "系统中未检测到 mitmproxy 的证书，请进行手动安装。\n证书安装教程请参考: https://docs.mitmproxy.org/stable/concepts/certificates/#installing-the-mitmproxy-ca-certificate-manually\n\n证书安装后请按【enter键】继续")
 
 
 # 检查系统代理是否设置正确
 def wait_until_proxy_setting(proxy_address):
     while True:
-        if is_proxy_correct({"http": proxy_address, "https": proxy_address}):
+        if is_proxy_setting({"http": proxy_address, "https": proxy_address}):
             break
         else:
-            input("\n按任意键继续")
+            input("\n按【enter键】继续")
 
 
 def wait_until_env_configured(proxy_address=None):
