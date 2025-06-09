@@ -68,7 +68,7 @@ async def main(notification_queue):
         for socket in server.sockets:
             port = socket.getsockname()[1]
             print(f"WebSocket 监听地址: ws://localhost:{port}")
-            print("所有服务已启动完毕! 请配置网站的 Credentials 设置")
+            print("\n所有服务已启动完毕! \n\n请配置网站的 Credentials 设置以抓取阅读量等数据")
         await server.serve_forever()
 
 
