@@ -3,11 +3,8 @@ name: Build Windows Executable with PyInstaller
 # 触发工作流的事件
 on:
   push:
-    branches: [ win ]
-  pull_request:
-    branches: [ win ]
-  # 允许手动触发
-  workflow_dispatch:
+    tags:
+      - 'v*'
 
 jobs:
   build-windows:
