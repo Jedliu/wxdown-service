@@ -25,7 +25,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.8'
+          python-version: '3.12'
 
       # 安装依赖和 PyInstaller
       - name: Install dependencies
@@ -57,7 +57,9 @@ jobs:
       - name: Zip the bundle
         if: runner.os == 'macOS'
         run: |
-          zip -r wxdown-service-macos.zip dist/wxdown-service
+          cd dist
+          zip -r wxdown-service-macos.zip wxdown-service
+          mv wxdown-service-macos.zip ..
         shell: bash
 
       # 上传打包结果
