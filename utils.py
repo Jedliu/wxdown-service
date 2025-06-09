@@ -1,5 +1,6 @@
 import re
 import subprocess
+import time
 import urllib.request
 import requests
 
@@ -48,3 +49,16 @@ def is_certificate_installed_windows():
                             if computed_thumbprint == thumbprint:
                                 return True
         return False
+
+def wait_until_certificate_installed():
+    while True:
+        if is_certificate_installed_macos():
+            break
+        else:
+            input("系统中未检测到 mitmproxy 的证书，请进行手动安装。\n证书安装教程请参考: https://docs.mitmproxy.org/stable/concepts/certificates/#installing-the-mitmproxy-ca-certificate-manually\n\n证书安装后请按任意键继续")
+
+def wait_until_env_configured():
+    # 检查证书是否安装
+    wait_until_certificate_installed()
+
+    # 检查系统代理是否设置正确

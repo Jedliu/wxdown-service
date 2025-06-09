@@ -62,16 +62,18 @@ class CredentialsFileHandler(FileSystemEventHandler):
 
 
 # 启动 websocket 服务
-async def main(notification_queue):
+async def main(proxy_address, notification_queue):
     asyncio.create_task(notify_clients(notification_queue))
     async with serve(connect_handler, "localhost") as server:
         for socket in server.sockets:
             port = socket.getsockname()[1]
-            print(f"Listening on ws://localhost:{port}")
+            print(f"mitmproxy 代理地址: {proxy_address}")
+            print(f"WebSocket 监听地址: ws://localhost:{port}")
+            print("所有服务已启动完毕! 请配置网站的 Credentials 设置")
         await server.serve_forever()
 
 
-def start():
+def start(proxy_address):
     Path(FILENAME).touch()
 
     loop = asyncio.new_event_loop()
@@ -83,7 +85,7 @@ def start():
 
     try:
         observer.start()
-        loop.run_until_complete(main(notification_queue))
+        loop.run_until_complete(main(proxy_address, notification_queue))
     except KeyboardInterrupt:
         pass
     finally:

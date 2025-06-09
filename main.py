@@ -2,6 +2,7 @@ import sys
 import mitm
 import asyncio
 import watcher
+import utils
 
 
 def main():
@@ -11,13 +12,11 @@ def main():
         print("启动 mitmproxy 失败，请切换端口进行重试")
         sys.exit(1)
 
-    print(f"mitmproxy has started successfully on {proxy_address}")
+    # 检查证书是否安装，以及代理设置是否正确
+    utils.wait_until_env_configured()
 
-    # 检查证书是否安装
+    watcher.start(proxy_address)
 
-    # 检查系统代理是否设置正确
-
-    watcher.start()
 
 
 if __name__ == '__main__':
