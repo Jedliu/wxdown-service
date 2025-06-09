@@ -21,3 +21,34 @@ pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.p
 - `-D` 打包为一个目录
 - `-c` 打开控制台窗口用来输入/输出
 - `-add-data` 添加资源文件
+
+## macOS 系统
+
+由于 macOS 系统要求必须签名才能分发应用程序，所以从 [Releases](https://github.com/wechat-article/wxdown-service/releases) 下载的 macOS 版本不一定能用，这种情况下
+推荐从源码自己进行构建。构建步骤如下：
+
+### 1. 下载源码
+```shell
+git clone git@github.com:wechat-article/wxdown-service.git
+```
+
+### 2. 配置环境 & 安装依赖
+```shell
+# 创建虚拟环境
+python3 -m venv .
+source bin/activate
+
+pip3 install -r requirements.txt
+pip3 install pyinstaller
+```
+
+### 3. 打包
+```shell
+pyinstaller -y --clean wxdown-service.spec
+```
+
+### 4. 运行
+```shell
+cd dist/wxdown-service
+./wxdown-service
+```
