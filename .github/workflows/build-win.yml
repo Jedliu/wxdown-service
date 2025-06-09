@@ -49,13 +49,11 @@ jobs:
       # 压缩 dist/wxdown-service/ 为 wxdown-service.zip
       - name: Create zip archive
         run: |
-          Compress-Archive -Path dist/wxdown-service/* -DestinationPath wxdown-service.zip
+          Compress-Archive -Path dist/wxdown-service/* -DestinationPath wxdown-service-windows.zip
         shell: pwsh
 
       # 上传打包结果
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
         with:
-          name: wxdown-service.zip
-          path: wxdown-service.zip
-          retention-days: 7
+          files: wxdown-service-windows.zip
