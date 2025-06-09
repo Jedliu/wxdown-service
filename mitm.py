@@ -14,8 +14,8 @@ import re
 from pathlib import Path
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
-PLUGIN_PATH = SRC_PATH / 'resources' / 'credential.py'
-PLUGIN_FILE = str(PLUGIN_PATH)
+PLUGIN_FILE = str(SRC_PATH / 'resources' / 'credential.py')
+CREDENTIALS_FILE = str(SRC_PATH / 'resources' / 'credentials.json')
 
 
 class Capture(io.TextIOBase):
@@ -45,7 +45,7 @@ def start():
     args, unparsed = parser.parse_known_args()
 
     # 启动 mitmproxy 并加载 credentials 插件
-    args_arr = ["-p", args.port, "-s", PLUGIN_FILE]
+    args_arr = ["-p", args.port, "-s", PLUGIN_FILE, '--set', 'credentials='+CREDENTIALS_FILE]
     queue = multiprocessing.Queue()
     p = Process(target=run_mitmdump, args=(args_arr, queue))
     p.start()

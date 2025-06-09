@@ -14,7 +14,7 @@ class ExtractWxCredentials:
         loader.add_option(
             name="credentials",
             typespec=Optional[str],
-            default="resources/credentials.json",
+            default=None,
             help="指定 Credentials.json 文件路径",
         )
 
