@@ -2,9 +2,10 @@ import asyncio
 from pathlib import Path
 
 import websockets
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import FileSystemEventHandler, FileSystemEvent
 from watchdog.observers import Observer
 from websockets.asyncio.server import serve, ServerConnection
+from logger import logger
 
 
 # Credentials.json 文件位置
@@ -53,8 +54,13 @@ class CredentialsFileHandler(FileSystemEventHandler):
         self.filename = filename
         self.loop = eventloop
         self.notification_queue = notification_queue
+        logger.debug(f"开始监控文件: {filename}")
+
+    def on_any_event(self, event: FileSystemEvent) -> None:
+        logger.debug(f"on_any_event: {event}")
 
     def on_modified(self, event):
+        logger.debug(f"on_modified: {event}")
         if event.src_path == self.filename:
             try:
                 with open(self.filename, 'r') as file:
@@ -67,11 +73,16 @@ class CredentialsFileHandler(FileSystemEventHandler):
 # 启动 websocket 服务
 async def main(notification_queue):
     asyncio.create_task(notify_clients(notification_queue))
+
+    logger.info(f"开始启动 websocket 服务")
     async with serve(connect_handler, "localhost") as server:
         for socket in server.sockets:
             port = socket.getsockname()[1]
+            logger.info(f"websocket 端口: {port}")
             print(f"WebSocket 监听地址: ws://localhost:{port}")
             print("\n所有服务已启动完毕! \n\n请配置网站的 Credentials 设置以抓取阅读量等数据")
+
+        logger.info(f"websocket 服务启动完毕")
         await server.serve_forever()
 
 
@@ -95,7 +106,3 @@ def start():
         observer.join()
         loop.close()
 
-
-# Program entry point
-if __name__ == "__main__":
-    start()
