@@ -46,7 +46,7 @@ async def notify_clients(notification_queue: asyncio.Queue):
                 except websockets.ConnectionClosed:
                     ws_clients.remove(client)
     except Exception as e:
-        pass
+        logger.error(f"通知客户端时发生错误: {e}")
 
 
 class CredentialsFileHandler(FileSystemEventHandler):

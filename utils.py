@@ -3,12 +3,16 @@ import urllib.request
 
 import requests
 import cert
+from logger import logger
 
 
 # 检查代理是否正确
 def is_proxy_correct(target_proxy_address):
     proxy = urllib.request.getproxies()
+    logger.debug(f"检测到系统代理设置为: {proxy}")
+    logger.debug(f"mitmproxy 代理为: {target_proxy_address}")
     response = requests.get('http://mitm.it', proxies=proxy).text
+    logger.debug(f"检测 http://mitm.it 代理: {response}")
 
     is_match = re.search(r'If you can see this, traffic is not passing through mitmproxy', response)
     if is_match or proxy['http'] != target_proxy_address['http'] or proxy['https'] != target_proxy_address['https']:
