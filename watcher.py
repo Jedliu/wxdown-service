@@ -1,5 +1,4 @@
 import asyncio
-import os
 from pathlib import Path
 
 import websockets
@@ -7,13 +6,12 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from websockets.asyncio.server import serve, ServerConnection
 
-SRC_PATH = Path.absolute(Path(__file__)).parent
-JSON_PATH = SRC_PATH / "resources" / "credentials.json"
-JSON_FILE = str(JSON_PATH)
 
 # Credentials.json 文件位置
-# FILENAME = os.fspath(Path('resources/credentials.json').absolute())
-FILENAME = JSON_FILE
+SRC_PATH = Path.absolute(Path(__file__)).parent
+CREDENTIALS_JSON_PATH = SRC_PATH / "resources" / "credentials.json"
+CREDENTIALS_JSON_FILE = str(CREDENTIALS_JSON_PATH)
+
 
 # 保存所有连接的 websocket 客户端
 ws_clients = set()
@@ -78,14 +76,14 @@ async def main(notification_queue):
 
 
 def start():
-    Path(FILENAME).touch()
+    Path(CREDENTIALS_JSON_FILE).touch()
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     notification_queue = asyncio.Queue()
-    event_handler = CredentialsFileHandler(FILENAME, loop, notification_queue)
+    event_handler = CredentialsFileHandler(CREDENTIALS_JSON_FILE, loop, notification_queue)
     observer = Observer()
-    observer.schedule(event_handler, FILENAME, recursive=True)
+    observer.schedule(event_handler, CREDENTIALS_JSON_FILE, recursive=True)
 
     try:
         observer.start()
