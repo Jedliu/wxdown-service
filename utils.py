@@ -10,8 +10,8 @@ def is_proxy_correct(target_proxy_address):
     proxy = urllib.request.getproxies()
     response = requests.get('http://mitm.it', proxies=proxy).text
 
-    if re.search(r'If you can see this, traffic is not passing through mitmproxy',
-                 response) or proxy != target_proxy_address:
+    is_match = re.search(r'If you can see this, traffic is not passing through mitmproxy', response)
+    if is_match or proxy['http'] != target_proxy_address['http'] or proxy['https'] != target_proxy_address['https']:
         print("\n检测到系统的网络代理设置不正确")
         print(f"当前网络代理: {proxy}")
         print(f"目标网络代理: {target_proxy_address}")
