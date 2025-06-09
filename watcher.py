@@ -10,7 +10,8 @@ from logger import logger
 
 # Credentials.json 文件位置
 SRC_PATH = Path.absolute(Path(__file__)).parent
-CREDENTIALS_JSON_PATH = SRC_PATH / "resources" / "credentials.json"
+CREDENTIALS_DIR = SRC_PATH / 'resources' / 'data'
+CREDENTIALS_JSON_PATH = CREDENTIALS_DIR / 'credentials.json'
 CREDENTIALS_JSON_FILE = str(CREDENTIALS_JSON_PATH)
 
 
@@ -95,7 +96,7 @@ def start():
     notification_queue = asyncio.Queue()
     event_handler = CredentialsFileHandler(CREDENTIALS_JSON_FILE, loop, notification_queue)
     observer = Observer()
-    observer.schedule(event_handler, str(SRC_PATH), recursive=True)
+    observer.schedule(event_handler, str(CREDENTIALS_DIR), recursive=True)
 
     try:
         observer.start()

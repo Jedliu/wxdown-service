@@ -15,7 +15,7 @@ from pathlib import Path
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
 PLUGIN_FILE = str(SRC_PATH / 'resources' / 'credential.py')
-CREDENTIALS_FILE = str(SRC_PATH / 'resources' / 'credentials.json')
+CREDENTIALS_FILE = str(SRC_PATH / 'resources' / 'data' / 'credentials.json')
 
 
 class Capture(io.TextIOBase):
