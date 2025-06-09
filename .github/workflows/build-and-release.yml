@@ -1,4 +1,4 @@
-name: Build Windows Executable with PyInstaller
+name: Build and Release
 
 # 触发工作流的事件
 on:
@@ -7,9 +7,12 @@ on:
       - 'v*'
 
 jobs:
-  build-windows:
+  build-and-release:
     # 使用 Windows 运行环境
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ windows-latest, macos-latest ]
 
     steps:
       # 检出代码
@@ -20,37 +23,45 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12.8' # 保持用户指定的 Python 版本
-          architecture: 'x64'
+          python-version: '3.12.8'
 
       # 安装依赖和 PyInstaller
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if (Test-Path requirements.txt) { pip install -r requirements.txt }
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pyinstaller
-        shell: pwsh
+        shell: bash
 
       # 运行 PyInstaller 打包
-      - name: Build executable
+      - name: Build with PyInstaller
         run: |
           pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources/ main.py
-        shell: pwsh
+        shell: bash
 
       # 调试：列出 dist/ 目录内容
       - name: List dist directory
         run: |
-          Get-ChildItem -Path dist -Recurse
-        shell: pwsh
+          ls -al
+        shell: bash
 
       # 压缩 dist/wxdown-service/ 为 wxdown-service.zip
-      - name: Create zip archive
+      - name: Zip the bundle
+        if: runner.os == 'Windows'
         run: |
           Compress-Archive -Path dist/wxdown-service/* -DestinationPath wxdown-service-windows.zip
         shell: pwsh
 
+      - name: Zip the bundle
+        if: runner.os == 'macOS'
+        run: |
+          zip -r wxdown-service-macos.zip dist/wxdown-service
+        shell: bash
+
       # 上传打包结果
       - name: Upload release assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
-          files: wxdown-service-windows.zip
+          files: |
+            wxdown-service-windows.zip
+            wxdown-service-macos.zip
