@@ -1,6 +1,5 @@
 import sys
 import mitm
-import asyncio
 import watcher
 import utils
 
@@ -12,19 +11,15 @@ def main():
         print("启动 mitmproxy 失败，请切换端口进行重试")
         sys.exit(1)
 
+    print(f"mitmproxy 代理地址: {proxy_address}")
+
     # 检查证书是否安装，以及代理设置是否正确
-    utils.wait_until_env_configured()
+    utils.wait_until_env_configured(proxy_address)
 
-    watcher.start(proxy_address)
-
+    # 启动文件监控及 ws 服务
+    watcher.start()
 
 
 if __name__ == '__main__':
-    # print(utils.proxy_correct())
-    # print(utils.is_certificate_installed_macos())
-    # proxy = urllib.request.getproxies()
-    # print(proxy)
-    # response = requests.get('http://mitm.it', proxies=proxy)
-    # print(response.text)
     main()
 
