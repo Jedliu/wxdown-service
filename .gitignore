@@ -2,3 +2,5 @@
 .DS_Store
 resources/logs
 resources/credentials.json
+build
+dist

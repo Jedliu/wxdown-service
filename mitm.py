@@ -11,6 +11,11 @@ import sys
 import time
 import operator
 import re
+from pathlib import Path
+
+SRC_PATH = Path.absolute(Path(__file__)).parent
+PLUGIN_PATH = SRC_PATH / 'resources' / 'credential.py'
+PLUGIN_FILE = str(PLUGIN_PATH)
 
 
 class Capture(io.TextIOBase):
@@ -37,10 +42,10 @@ def run_mitmdump(args: list[str], queue: multiprocessing.Queue):
 def start():
     parser = argparse.ArgumentParser(description='Run mitmproxy using the specified port.')
     parser.add_argument('-p', '--port', type=str, default='65000', help='Proxy Port (default: 65000)')
-    args = parser.parse_args()
+    args, unparsed = parser.parse_known_args()
 
     # 启动 mitmproxy 并加载 credentials 插件
-    args_arr = ["-p", args.port, "-s resources/credential.py"]
+    args_arr = ["-p", args.port, "-s", PLUGIN_FILE]
     queue = multiprocessing.Queue()
     p = Process(target=run_mitmdump, args=(args_arr, queue))
     p.start()

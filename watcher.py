@@ -7,8 +7,13 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from websockets.asyncio.server import serve, ServerConnection
 
+SRC_PATH = Path.absolute(Path(__file__)).parent
+JSON_PATH = SRC_PATH / "resources" / "credentials.json"
+JSON_FILE = str(JSON_PATH)
+
 # Credentials.json 文件位置
-FILENAME = os.fspath(Path('resources/credentials.json').absolute())
+# FILENAME = os.fspath(Path('resources/credentials.json').absolute())
+FILENAME = JSON_FILE
 
 # 保存所有连接的 websocket 客户端
 ws_clients = set()

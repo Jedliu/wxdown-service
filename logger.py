@@ -1,7 +1,12 @@
 import logging
 import logging.handlers
 import os
+from pathlib import Path
 
+
+SRC_PATH = Path.absolute(Path(__file__)).parent
+LOG_PATH = SRC_PATH / 'resources' / 'logs' / 'wxdown.log'
+LOG_FILE = str(LOG_PATH)
 
 def setup_logger(
         name: str,
@@ -53,8 +58,8 @@ def setup_logger(
 
 
 logger = setup_logger(
-    name="wxdown-proxy",
-    log_file="resources/logs/wxdown-proxy.log",
+    name="wxdown",
+    log_file=LOG_FILE,
     level=logging.DEBUG,
     when="midnight",
     backup_count=14,
