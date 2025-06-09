@@ -4,3 +4,4 @@ resources/logs
 resources/credentials.json
 build
 dist
+**/__pycache__
