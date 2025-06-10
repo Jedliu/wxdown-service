@@ -64,6 +64,6 @@ jobs:
 
       # 上传打包结果
       - name: Upload release assets
-        uses: softprops/action-gh-release@v2.2
+        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631
         with:
           files: ${{ runner.os == 'Windows' && 'wxdown-service-windows.zip' || 'wxdown-service-macos.zip' }}
