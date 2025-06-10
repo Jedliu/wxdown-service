@@ -70,3 +70,7 @@ cd dist/wxdown-service
 ```shell
 ./wxdown-service -p 65001
 ```
+
+### 2. 出现其他类型的错误，可查看程序的日志文件
+
+日志文件位于程序目录下的`_internal/resources/logs/wxdown.log`
