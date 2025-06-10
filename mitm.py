@@ -12,6 +12,7 @@ import time
 import operator
 import re
 from pathlib import Path
+import version
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
 PLUGIN_FILE = str(SRC_PATH / 'resources' / 'credential.py')
@@ -38,10 +39,13 @@ def run_mitmdump(args: list[str], queue: multiprocessing.Queue):
     logger.info(f'Run mitmdump process {args} ({os.getpid()})...')
     mitmdump(args)
 
+def get_version():
+    return version.version
 
 def start():
-    parser = argparse.ArgumentParser(description='Run mitmproxy using the specified port.')
-    parser.add_argument('-p', '--port', type=str, default='65000', help='Proxy Port (default: 65000)')
+    parser = argparse.ArgumentParser(prog='wxdown-service', description='微信公众号文章下载辅助工具')
+    parser.add_argument('-p', '--port', type=str, default='65000', help='mitmproxy proxy port (default: 65000)')
+    parser.add_argument('-v', '--version', action='version', version=get_version(), help='display version')
     args, unparsed = parser.parse_known_args()
 
     # 启动 mitmproxy 并加载 credentials 插件
