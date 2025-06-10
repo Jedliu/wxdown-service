@@ -1,5 +1,11 @@
 # wxdown-service
 
+## 使用
+
+在控制台执行 `./wxdown-service` 或者双击对应的可执行文件即可，根据控制台的提示进行操作，最终出现【所有服务已启动完毕!】即可。
+
+接下来，将 websocket 地址配置到网站中。
+
 ## 功能说明
 
 第一版是一个命令行程序，没有图形界面，使用 pyinstaller 进行打包。
@@ -53,4 +59,14 @@ pyinstaller -y --clean wxdown-service.spec
 ```shell
 cd dist/wxdown-service
 ./wxdown-service
+```
+
+## 常见问题
+
+### 1. 启动程序时出现【启动 mitmproxy 失败，请切换端口进行重试】
+
+该程序启动 mitmproxy 时的默认端口为 65000，如果出现该错误，表示端口已被占用，可通过 `-p` 选项指定其他端口
+
+```shell
+./wxdown-service -p 65001
 ```
