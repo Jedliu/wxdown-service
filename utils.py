@@ -3,6 +3,7 @@ import sys
 import urllib.request
 
 import requests
+from pathlib import Path
 from termcolor import colored
 from yaspin import yaspin
 
@@ -10,6 +11,9 @@ import cert
 import version
 from logger import logger
 
+
+SRC_PATH = Path.absolute(Path(__file__)).parent
+LOGO_FILE = str(SRC_PATH / 'resources' / 'logo.txt')
 
 # 检查代理是否正确
 def is_proxy_setting(mitm_proxy_obj):
@@ -86,7 +90,7 @@ def wait_until_env_configured(mitm_proxy_address = None):
 
 
 def print_logo():
-    with open("logo.txt") as file:
+    with open(LOGO_FILE) as file:
         print(file.read())
     print(f"v{version.version}\n")
 
