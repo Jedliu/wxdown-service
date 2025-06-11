@@ -104,7 +104,7 @@ def start():
         observer.start()
         loop.run_until_complete(main(notification_queue))
     except KeyboardInterrupt:
-        pass
+        print("Ctrl+C pressed, exiting.")
     finally:
         observer.stop()
         observer.join()

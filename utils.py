@@ -1,4 +1,5 @@
 import re
+import sys
 import urllib.request
 
 import requests
@@ -21,6 +22,8 @@ def is_proxy_setting(mitm_proxy_obj):
             response = requests.get('http://mitm.it', proxies=proxy_obj).text
         except requests.exceptions.ProxyError as e:
             print_error_message("\n代理配置有误，请检查设置")
+            print(f"当前网络代理: {proxy_obj}")
+            print(f"目标网络代理: {mitm_proxy_obj}")
             logger.error(f"检测 http://mitm.it 代理时出错: {e}")
             return False
 
@@ -53,7 +56,11 @@ def wait_until_certificate_installed():
             print_error_message("\n系统中未检测到 mitmproxy 的证书，请进行手动安装。")
             print_info_message("证书安装教程请参考: https://docs.mitmproxy.org/stable/concepts/certificates/#installing-the-mitmproxy-ca-certificate-manually")
             print_info_message("\n(press <enter> to continue)")
-            input()
+            try:
+                input()
+            except KeyboardInterrupt:
+                print("Ctrl+C pressed, exiting.")
+                sys.exit(0)
 
 
 # 检查系统代理是否设置正确
@@ -63,7 +70,11 @@ def wait_until_proxy_setting(mitm_proxy_address):
             break
         else:
             print_info_message("\n(press <enter> to continue)")
-            input()
+            try:
+                input()
+            except KeyboardInterrupt:
+                print("Ctrl+C pressed, exiting.")
+                sys.exit(0)
 
 
 def wait_until_env_configured(mitm_proxy_address = None):
