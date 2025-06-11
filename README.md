@@ -19,7 +19,7 @@
 ## 打包命令(pyinstaller)
 
 ```shell
-pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources/ main.py
+pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources --add-data=resources/logo.txt:resources main.py
 ```
 
 ### 参数说明

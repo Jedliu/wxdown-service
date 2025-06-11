@@ -38,7 +38,7 @@ jobs:
       # 运行 PyInstaller 打包
       - name: Build with PyInstaller
         run: |
-          pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources/ main.py
+          pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources --add-data=resources/logo.txt:resources main.py
         shell: bash
 
       # 调试：列出 dist/ 目录内容
