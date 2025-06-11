@@ -108,5 +108,5 @@ def start():
     finally:
         observer.stop()
         observer.join()
-        loop.close()
+        # loop.close()
 
