@@ -2,7 +2,7 @@
 
 ## 使用
 
-在控制台执行 `./wxdown-service` 或者双击对应的可执行文件即可，根据控制台的提示进行操作，最终出现【所有服务已启动完毕!】即可。
+在控制台执行 `./wxdown-service` 或者双击对应的可执行文件即可，根据控制台的提示进行操作，最终出现【服务启动成功】即可。
 
 接下来，将 websocket 地址配置到网站中。
 
@@ -41,6 +41,9 @@ git clone git@github.com:wechat-article/wxdown-service.git
 ```
 
 ### 2. 配置环境 & 安装依赖
+
+> 推荐使用 python 3.12 进行构建
+
 ```shell
 # 创建虚拟环境
 python3 -m venv .
