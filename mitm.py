@@ -35,7 +35,7 @@ class Capture(io.TextIOBase):
 
 
 def run_mitmdump(args: list[str], queue: multiprocessing.Queue):
-    sys.stdout = Capture(queue)
+    sys.stdout = sys.stderr = Capture(queue)
     logger.info(f'Run mitmdump process {args} ({os.getpid()})...')
     mitmdump(args)
 

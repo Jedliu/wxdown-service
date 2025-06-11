@@ -6,6 +6,8 @@ import utils
 
 
 def main():
+    print('starting')
+
     # 启动 mitmproxy 进程
     proxy_address = mitm.start()
     if proxy_address is None:
