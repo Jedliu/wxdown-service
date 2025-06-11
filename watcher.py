@@ -1,7 +1,8 @@
 import asyncio
-from pathlib import Path
-
+import utils
 import websockets
+
+from pathlib import Path
 from watchdog.events import FileSystemEventHandler, FileSystemEvent
 from watchdog.observers import Observer
 from websockets.asyncio.server import serve, ServerConnection
@@ -22,7 +23,7 @@ ws_clients = set()
 # 处理 websocket 连接
 async def connect_handler(client: ServerConnection):
     ws_clients.add(client)
-    print(f"当前连接客户端数: {len(ws_clients)}")
+    utils.print_info_message(f"当前连接客户端数: {len(ws_clients)}")
     try:
         while True:
             await client.recv()
@@ -30,7 +31,7 @@ async def connect_handler(client: ServerConnection):
         pass
     finally:
         ws_clients.remove(client)
-        print(f"当前连接客户端数: {len(ws_clients)}")
+        utils.print_info_message(f"当前连接客户端数: {len(ws_clients)}")
 
 
 # 通知所有客户端
@@ -39,7 +40,7 @@ async def notify_clients(notification_queue: asyncio.Queue):
         while True:
             data = await notification_queue.get()
             if len(ws_clients) > 0:
-                print('通知所有客户端最新 Credentials 数据')
+                utils.print_info_message('通知所有客户端最新 Credentials 数据')
 
             for client in list(ws_clients):
                 try:
@@ -68,7 +69,7 @@ class CredentialsFileHandler(FileSystemEventHandler):
                     data = file.read()
                 asyncio.run_coroutine_threadsafe(self.notification_queue.put(data), self.loop)
             except Exception as e:
-                print(f"Error reading file: {e}")
+                utils.print_error_message(f"Error reading file: {e}")
 
 
 # 启动 websocket 服务
@@ -80,8 +81,8 @@ async def main(notification_queue):
         for socket in server.sockets:
             port = socket.getsockname()[1]
             logger.info(f"websocket 端口: {port}")
-            print(f"WebSocket 监听地址: ws://localhost:{port}")
-            print("\n所有服务已启动完毕! \n\n请配置网站的 Credentials 设置以抓取阅读量等数据")
+            utils.print_success_message("\n服务启动成功")
+            utils.print_info_message(f"    WebSocket 监听地址: ws://localhost:{port}")
             break
 
         logger.info(f"websocket 服务启动完毕")

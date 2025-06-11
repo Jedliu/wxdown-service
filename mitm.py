@@ -2,6 +2,8 @@
 
 from multiprocessing import Process
 from mitmproxy.tools.main import mitmdump
+
+import utils
 from logger import logger
 import multiprocessing
 import os
@@ -40,13 +42,15 @@ def run_mitmdump(args: list[str], queue: multiprocessing.Queue):
     mitmdump(args)
 
 def get_version():
-    return version.version
+    return f"wxdown-service {version.version}"
 
 def start():
     parser = argparse.ArgumentParser(prog='wxdown-service', description='微信公众号文章下载辅助工具')
     parser.add_argument('-p', '--port', type=str, default='65000', help='mitmproxy proxy port (default: 65000)')
     parser.add_argument('-v', '--version', action='version', version=get_version(), help='display version')
     args, unparsed = parser.parse_known_args()
+
+    utils.print_logo()
 
     # 启动 mitmproxy 并加载 credentials 插件
     args_arr = ["-p", args.port, "-s", PLUGIN_FILE, '--set', 'credentials='+CREDENTIALS_FILE]

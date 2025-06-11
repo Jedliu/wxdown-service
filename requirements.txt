@@ -1,5 +1,6 @@
-mitmproxy==12.1.1
-Requests==2.32.3
-watchdog==4.0.2
-websockets==15.0
+mitmproxy~=12.1.1
+Requests~=2.32.3
+watchdog~=4.0.2
+websockets~=15.0
 wincertstore==0.2.1
+termcolor~=3.1.0
