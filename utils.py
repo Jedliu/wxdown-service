@@ -1,13 +1,13 @@
 import re
-import time
 import urllib.request
-import requests
-import cert
-import version
 
-from logger import logger
+import requests
 from termcolor import colored
 from yaspin import yaspin
+
+import cert
+import version
+from logger import logger
 
 
 # 检查代理是否正确
