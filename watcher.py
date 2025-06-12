@@ -1,13 +1,20 @@
 import asyncio
-import utils
-import websockets
-
+import io
+import operator
+import queue
+import re
+import sys
+import time
+from multiprocessing import Process, Queue
 from pathlib import Path
+
+import websockets
 from watchdog.events import FileSystemEventHandler, FileSystemEvent
 from watchdog.observers import Observer
 from websockets.asyncio.server import serve, ServerConnection
-from logger import logger
 
+import utils
+from logger import logger
 
 # Credentials.json 文件位置
 SRC_PATH = Path.absolute(Path(__file__)).parent
@@ -81,17 +88,37 @@ async def main(notification_queue):
         for socket in server.sockets:
             port = socket.getsockname()[1]
             logger.info(f"websocket 端口: {port}")
-            utils.print_success_message("\n服务启动成功")
-            utils.print_info_message(f"    WebSocket 监听地址: ws://localhost:{port}")
+            print(f"服务启动成功:{port}")
             break
 
         logger.info(f"websocket 服务启动完毕")
         await server.serve_forever()
 
 
-def start():
+class Capture(io.TextIOBase):
+    def __init__(self, q):
+        self.queue = q
+        self.buffer = ""
+
+    def writable(self):
+        return True
+
+    def write(self, s):
+        self.buffer += s
+        while '\n' in self.buffer:
+            line, _, self.buffer = self.buffer.partition('\n')
+            try:
+                self.queue.put_nowait(line)
+            except queue.Full:
+                pass
+
+
+def watcher_process(q: Queue):
+    sys.stdout = sys.stderr = Capture(q)
+
     Path(CREDENTIALS_JSON_FILE).parent.mkdir(parents=True, exist_ok=True)
     Path(CREDENTIALS_JSON_FILE).touch()
+
 
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -103,10 +130,29 @@ def start():
     try:
         observer.start()
         loop.run_until_complete(main(notification_queue))
-    except KeyboardInterrupt:
-        print("Ctrl+C pressed, exiting.")
     finally:
         observer.stop()
         observer.join()
         # loop.close()
 
+
+def start():
+    q = Queue()
+    p = Process(target=watcher_process, args=(q,))
+    p.start()
+
+    start_time = time.time()
+    ws_address = None
+
+    while time.time() - start_time < 10:
+        try:
+            message = q.get_nowait()
+            if operator.contains(message, "服务启动成功"):
+                match = re.search(r':(\d+)', message)
+                port = match.group(1)
+                ws_address = f"ws://127.0.0.1:{port}"
+                break
+        except queue.Empty:
+            time.sleep(0.1)
+
+    return ws_address
