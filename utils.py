@@ -3,14 +3,12 @@ import urllib.request
 from pathlib import Path
 
 import requests
-from rich import print as rprint
 from termcolor import colored
 
 import cert
 import version
 from console import console
 from logger import logger
-
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
 LOGO_FILE = str(SRC_PATH / 'resources' / 'logo.txt')
