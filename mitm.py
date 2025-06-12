@@ -58,7 +58,7 @@ def start(port):
             if operator.contains(message, "HTTP(S) proxy listening at"):
                 match = re.search(r'\*:(\d+)', message)
                 port = match.group(1)
-                proxy_address = f"127.0.0.1:{port}"
+                proxy_address = f"http://127.0.0.1:{port}"
                 break
             elif operator.contains(message, "address already in use"):
                 break

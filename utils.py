@@ -54,16 +54,21 @@ def check_certificate_installed():
         print_error_message("\n系统中未检测到 mitmproxy 的证书，请进行手动安装。")
         print_info_message(
             "证书安装教程请参考: https://docs.mitmproxy.org/stable/concepts/certificates/#installing-the-mitmproxy-ca-certificate-manually")
+        return False
+    return True
 
 
 def wait_until_env_configured(mitm_proxy_address = None):
     while True:
         with console.status("Checking..."):
             # 检查证书是否安装
-            check_certificate_installed()
+            v1 = check_certificate_installed()
 
             # 检查系统代理是否设置正确
-            check_system_proxy(mitm_proxy_address)
+            v2 = check_system_proxy(mitm_proxy_address)
+
+            if v1 and v2:
+                print_success_message('环境配置正确')
 
         print_info_message("\n(press <enter> to check again, press <ctrl-c> to exit)")
         input()
