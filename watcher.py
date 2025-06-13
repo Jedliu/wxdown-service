@@ -65,9 +65,6 @@ class CredentialsFileHandler(FileSystemEventHandler):
         self.notification_queue = notification_queue
         logger.debug(f"开始监控文件: {filename}")
 
-    def on_any_event(self, event: FileSystemEvent) -> None:
-        logger.debug(f"on_any_event: {event}")
-
     def on_modified(self, event):
         logger.debug(f"on_modified: {event}")
         if event.src_path == self.filename:
@@ -133,7 +130,6 @@ def watcher_process(q: Queue):
     finally:
         observer.stop()
         observer.join()
-        # loop.close()
 
 
 def start():
