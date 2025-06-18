@@ -6,6 +6,7 @@ import mitm
 import utils
 import watcher
 from ui.startup import startup_ui
+from ui.console import console
 
 
 def main():
@@ -19,13 +20,13 @@ def main():
     # 启动 mitmproxy 进程
     mitm_proxy_address = mitm.start(args.port)
     if mitm_proxy_address is None:
-        utils.print_error_message("启动 mitmproxy 失败，请切换端口进行重试")
+        console.print('[bold red]启动 mitmproxy 失败，请切换端口进行重试[/]')
         sys.exit(1)
 
     # 启动文件监控及 ws 服务进程
     ws_address = watcher.start()
     if ws_address is None:
-        utils.print_error_message("启动 watcher 失败，请查看错误日志")
+        console.print('[bold red]启动 watcher 失败，请查看错误日志[/]')
         sys.exit(1)
 
     # 启动 UI

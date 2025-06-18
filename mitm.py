@@ -1,4 +1,3 @@
-import io
 import operator
 import os
 import queue
@@ -10,6 +9,7 @@ from pathlib import Path
 
 from mitmproxy.tools.main import mitmdump
 
+import utils
 from logger import logger
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
@@ -17,26 +17,9 @@ PLUGIN_FILE = str(SRC_PATH / 'resources' / 'credential.py')
 CREDENTIALS_FILE = str(SRC_PATH / 'resources' / 'data' / 'credentials.json')
 
 
-class Capture(io.TextIOBase):
-    def __init__(self, q):
-        self.queue = q
-        self.buffer = ""
-
-    def writable(self):
-        return True
-
-    def write(self, s):
-        self.buffer += s
-        while '\n' in self.buffer:
-            line, _, self.buffer = self.buffer.partition('\n')
-            try:
-                self.queue.put_nowait(line)
-            except queue.Full:
-                pass
-
 
 def mitmproxy_process(args: list[str], q: Queue):
-    sys.stdout = sys.stderr = Capture(q)
+    sys.stdout = sys.stderr = utils.Capture(q)
     print(f'Run mitmdump process {args} ({os.getpid()})...')
     mitmdump(args)
 

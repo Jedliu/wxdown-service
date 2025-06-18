@@ -1,5 +1,4 @@
 import asyncio
-import io
 import operator
 import queue
 import re
@@ -9,7 +8,7 @@ from multiprocessing import Process, Queue
 from pathlib import Path
 
 import websockets
-from watchdog.events import FileSystemEventHandler, FileSystemEvent
+from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
 from websockets.asyncio.server import serve, ServerConnection
 
@@ -73,7 +72,7 @@ class CredentialsFileHandler(FileSystemEventHandler):
                     data = file.read()
                 asyncio.run_coroutine_threadsafe(self.notification_queue.put(data), self.loop)
             except Exception as e:
-                utils.print_error_message(f"Error reading file: {e}")
+                logger.error(f"Error reading file: {e}")
 
 
 # 启动 websocket 服务
@@ -92,26 +91,11 @@ async def main(notification_queue):
         await server.serve_forever()
 
 
-class Capture(io.TextIOBase):
-    def __init__(self, q):
-        self.queue = q
-        self.buffer = ""
 
-    def writable(self):
-        return True
-
-    def write(self, s):
-        self.buffer += s
-        while '\n' in self.buffer:
-            line, _, self.buffer = self.buffer.partition('\n')
-            try:
-                self.queue.put_nowait(line)
-            except queue.Full:
-                pass
 
 
 def watcher_process(q: Queue):
-    sys.stdout = sys.stderr = Capture(q)
+    sys.stdout = sys.stderr = utils.Capture(q)
 
     Path(CREDENTIALS_JSON_FILE).parent.mkdir(parents=True, exist_ok=True)
     Path(CREDENTIALS_JSON_FILE).touch()

@@ -1,6 +1,8 @@
 import re
 import urllib.request
 from pathlib import Path
+import io
+import queue
 
 import requests
 from termcolor import colored
@@ -46,11 +48,25 @@ def check_system_proxy(mitm_proxy_address):
     return True, '成功', proxy_obj
 
 
-def print_error_message(message):
-    print(colored(message, "red", attrs=["bold"]))
-
 def print_info_message(message):
     print(colored(message, "grey", None, attrs=["bold"]))
 
 def get_version():
     return f"wxdown-service {version.version}"
+
+class Capture(io.TextIOBase):
+    def __init__(self, q):
+        self.queue = q
+        self.buffer = ""
+
+    def writable(self):
+        return True
+
+    def write(self, s):
+        self.buffer += s
+        while '\n' in self.buffer:
+            line, _, self.buffer = self.buffer.partition('\n')
+            try:
+                self.queue.put_nowait(line)
+            except queue.Full:
+                pass

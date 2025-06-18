@@ -26,7 +26,7 @@ def startup_ui(mitm_proxy_address = None, ws_address = None):
             try:
                 if not cert.is_certificate_installed('mitmproxy'):
                     if platform.system() == 'Windows':
-                        cmd = 'certutil -addstore root mitmproxy-ca-cert.cer'
+                        cmd = 'certutil -addstore root %userprofile%\\.mitmproxy\\mitmproxy-ca-cert.cer'
                     elif platform.system() == 'Darwin':
                         cmd = 'sudo security add-trusted-cert -d -p ssl -p basic -k /Library/Keychains/System.keychain ~/.mitmproxy/mitmproxy-ca-cert.pem'
                     layout['footer'].update(
