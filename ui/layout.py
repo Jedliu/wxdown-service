@@ -6,7 +6,10 @@ def make_layout() -> Layout:
 
     layout.split(
         Layout(name="header", size=10),
-        Layout(name="main", ratio=1, minimum_size=10),
-        Layout(name="footer", ratio=1, minimum_size=10),
+        Layout(name="main"),
+    )
+    layout['main'].split_row(
+        Layout(name="service"),
+        Layout(name="status"),
     )
     return layout

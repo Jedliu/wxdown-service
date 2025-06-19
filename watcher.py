@@ -1,10 +1,10 @@
 import asyncio
+import multiprocessing
 import operator
 import queue
 import re
 import sys
 import time
-from multiprocessing import Process, Queue
 from pathlib import Path
 
 import websockets
@@ -41,12 +41,12 @@ async def connect_handler(client: ServerConnection):
 
 
 # 通知所有客户端
-async def notify_clients(notification_queue: asyncio.Queue):
+async def notify_clients(notification_queue: asyncio.Queue, output_queue: multiprocessing.Queue):
     try:
         while True:
             data = await notification_queue.get()
             if len(ws_clients) > 0:
-                utils.print_info_message('通知所有客户端最新 Credentials 数据')
+                logger.info('通知所有客户端最新 Credentials 数据')
 
             for client in list(ws_clients):
                 try:
@@ -76,8 +76,8 @@ class CredentialsFileHandler(FileSystemEventHandler):
 
 
 # 启动 websocket 服务
-async def main(notification_queue):
-    asyncio.create_task(notify_clients(notification_queue))
+async def main(notification_queue: asyncio.Queue, output_queue: multiprocessing.Queue):
+    asyncio.create_task(notify_clients(notification_queue, output_queue))
 
     logger.info(f"开始启动 websocket 服务")
     async with serve(connect_handler, "localhost") as server:
@@ -91,11 +91,8 @@ async def main(notification_queue):
         await server.serve_forever()
 
 
-
-
-
-def watcher_process(q: Queue):
-    sys.stdout = sys.stderr = utils.Capture(q)
+def watcher_process(output_queue: multiprocessing.Queue):
+    sys.stdout = sys.stderr = utils.Capture(output_queue)
 
     Path(CREDENTIALS_JSON_FILE).parent.mkdir(parents=True, exist_ok=True)
     Path(CREDENTIALS_JSON_FILE).touch()
@@ -110,29 +107,32 @@ def watcher_process(q: Queue):
 
     try:
         observer.start()
-        loop.run_until_complete(main(notification_queue))
+        loop.run_until_complete(main(notification_queue, output_queue))
     finally:
         observer.stop()
         observer.join()
 
 
+def watch_credential_file():
+    pass
+
 def start():
-    q = Queue()
-    p = Process(target=watcher_process, args=(q,))
-    p.start()
+    watcher_output_queue = multiprocessing.Queue()
+    process = multiprocessing.Process(target=watcher_process, args=(watcher_output_queue,))
+    process.start()
 
     start_time = time.time()
     ws_address = None
 
     while time.time() - start_time < 10:
         try:
-            message = q.get_nowait()
+            message = watcher_output_queue.get(timeout=0.1)
             if operator.contains(message, "服务启动成功"):
                 match = re.search(r':(\d+)', message)
                 port = match.group(1)
                 ws_address = f"ws://127.0.0.1:{port}"
                 break
         except queue.Empty:
-            time.sleep(0.1)
+            pass
 
     return ws_address

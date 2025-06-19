@@ -1,14 +1,13 @@
+import io
+import multiprocessing
 import re
 import urllib.request
 from pathlib import Path
-import io
-import queue
 
 import requests
 from termcolor import colored
 
 import version
-from logger import logger
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
 LOGO_FILE = str(SRC_PATH / 'resources' / 'logo.txt')
@@ -16,18 +15,12 @@ LOGO_FILE = str(SRC_PATH / 'resources' / 'logo.txt')
 # 检查系统代理是否设置正确
 def check_system_proxy(mitm_proxy_address):
     proxy_obj = urllib.request.getproxies()
-    logger.debug(f"检测到系统代理设置为: {proxy_obj}")
-    logger.debug(f"mitmproxy 代理为: {mitm_proxy_address}")
 
     details = f'将系统代理设置为 [bold green]{mitm_proxy_address.removeprefix('http://')}[/]\n当前系统代理为:\n{proxy_obj}'
 
     try:
         response = requests.get('http://mitm.it', proxies=proxy_obj, timeout=3).text
-    except requests.exceptions.ProxyError as e:
-        logger.error(f"检测 http://mitm.it 代理时出错: {e}")
-        return False, '代理配置有误，请检查设置', details
-    except requests.exceptions.ReadTimeout as e:
-        logger.error(f"检测 http://mitm.it 代理时超时: {e}")
+    except Exception as e:
         return False, '代理配置有误，请检查设置', details
 
     traffic_not_passing = re.search(r'If you can see this, traffic is not passing through mitmproxy', response)
@@ -55,7 +48,7 @@ def get_version():
     return f"wxdown-service {version.version}"
 
 class Capture(io.TextIOBase):
-    def __init__(self, q):
+    def __init__(self, q: multiprocessing.Queue):
         self.queue = q
         self.buffer = ""
 
@@ -66,7 +59,4 @@ class Capture(io.TextIOBase):
         self.buffer += s
         while '\n' in self.buffer:
             line, _, self.buffer = self.buffer.partition('\n')
-            try:
-                self.queue.put_nowait(line)
-            except queue.Full:
-                pass
+            self.queue.put(line)

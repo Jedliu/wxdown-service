@@ -1,11 +1,12 @@
 import argparse
 import multiprocessing
 import sys
+import os
 
 import mitm
 import utils
 import watcher
-from ui.startup import startup_ui
+from ui.startup import startup_ui_loop
 from ui.console import console
 
 
@@ -20,7 +21,7 @@ def main():
     # 启动 mitmproxy 进程
     mitm_proxy_address = mitm.start(args.port)
     if mitm_proxy_address is None:
-        console.print('[bold red]启动 mitmproxy 失败，请切换端口进行重试[/]')
+        console.print('[bold red]启动 mitmproxy 失败，请切换端口后重试[/]')
         sys.exit(1)
 
     # 启动文件监控及 ws 服务进程
@@ -30,11 +31,12 @@ def main():
         sys.exit(1)
 
     # 启动 UI
-    startup_ui(mitm_proxy_address, ws_address)
+    startup_ui_loop(mitm_proxy_address, ws_address)
 
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
+
     try:
         main()
     except KeyboardInterrupt:
