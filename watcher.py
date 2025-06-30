@@ -1,16 +1,18 @@
-import asyncio
 import multiprocessing
 import operator
 import queue
 import re
 import sys
+import threading
 import time
+from datetime import datetime, timedelta
 from pathlib import Path
+import json
 
 import websockets
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
-from websockets.asyncio.server import serve, ServerConnection
+from websockets.sync.server import serve, ServerConnection
 
 import utils
 from logger import logger
@@ -25,70 +27,54 @@ CREDENTIALS_JSON_FILE = str(CREDENTIALS_JSON_PATH)
 # 保存所有连接的 websocket 客户端
 ws_clients = set()
 
-
 # 处理 websocket 连接
-async def connect_handler(client: ServerConnection):
+def connect_handler(client: ServerConnection):
     ws_clients.add(client)
-    utils.print_info_message(f"当前连接客户端数: {len(ws_clients)}")
+    logger.debug(f"当前连接客户端数: {len(ws_clients)}")
+    for message in client:
+        client.send(message)
+    ws_clients.remove(client)
+    logger.debug(f"当前连接客户端数: {len(ws_clients)}")
+
+
+# 通知所有客户端最新的 Credentials 数据
+def notify_daemon():
+    while True:
+        time.sleep(5)
+        notify_clients()
+
+
+def notify_clients():
     try:
-        while True:
-            await client.recv()
-    except websockets.exceptions.ConnectionClosed:
-        pass
-    finally:
-        ws_clients.remove(client)
-        utils.print_info_message(f"当前连接客户端数: {len(ws_clients)}")
+        with open(CREDENTIALS_JSON_FILE, 'r') as file:
+            data = file.read()
 
+            # 处理数据，过滤已失效数据
+            json_data = json.loads(data)
+            ts = int((datetime.now() - timedelta(minutes=30)).timestamp() * 1000)
+            valid_data = [x for x in json_data if x['timestamp'] > ts]
+            result = json.dumps(valid_data, indent=4)
 
-# 通知所有客户端
-async def notify_clients(notification_queue: asyncio.Queue, output_queue: multiprocessing.Queue):
-    try:
-        while True:
-            data = await notification_queue.get()
-            if len(ws_clients) > 0:
-                logger.info('通知所有客户端最新 Credentials 数据')
-
-            for client in list(ws_clients):
+            # 发送数据
+            for ws_client in ws_clients:
                 try:
-                    await client.send(data)
+                    ws_client.send(result)
                 except websockets.ConnectionClosed:
-                    ws_clients.remove(client)
+                    ws_clients.remove(ws_client)
+
     except Exception as e:
-        logger.error(f"通知客户端时发生错误: {e}")
+        logger.error(f"Error reading file: {e}")
 
 
 class CredentialsFileHandler(FileSystemEventHandler):
-    def __init__(self, filename, eventloop, notification_queue):
+    def __init__(self, filename):
         self.filename = filename
-        self.loop = eventloop
-        self.notification_queue = notification_queue
         logger.debug(f"开始监控文件: {filename}")
 
     def on_modified(self, event):
         logger.debug(f"on_modified: {event}")
         if event.src_path == self.filename:
-            try:
-                with open(self.filename, 'r') as file:
-                    data = file.read()
-                asyncio.run_coroutine_threadsafe(self.notification_queue.put(data), self.loop)
-            except Exception as e:
-                logger.error(f"Error reading file: {e}")
-
-
-# 启动 websocket 服务
-async def main(notification_queue: asyncio.Queue, output_queue: multiprocessing.Queue):
-    asyncio.create_task(notify_clients(notification_queue, output_queue))
-
-    logger.info(f"开始启动 websocket 服务")
-    async with serve(connect_handler, "localhost") as server:
-        for socket in server.sockets:
-            port = socket.getsockname()[1]
-            logger.info(f"websocket 端口: {port}")
-            print(f"服务启动成功:{port}")
-            break
-
-        logger.info(f"websocket 服务启动完毕")
-        await server.serve_forever()
+            notify_clients()
 
 
 def watcher_process(output_queue: multiprocessing.Queue):
@@ -98,27 +84,30 @@ def watcher_process(output_queue: multiprocessing.Queue):
     Path(CREDENTIALS_JSON_FILE).touch()
 
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    notification_queue = asyncio.Queue()
-    event_handler = CredentialsFileHandler(CREDENTIALS_JSON_FILE, loop, notification_queue)
+    event_handler = CredentialsFileHandler(CREDENTIALS_JSON_FILE)
     observer = Observer()
     observer.schedule(event_handler, str(CREDENTIALS_DIR), recursive=True)
 
     try:
         observer.start()
-        loop.run_until_complete(main(notification_queue, output_queue))
+
+        # 启动 websocket 服务
+        logger.info(f"开始启动 websocket 服务")
+        threading.Thread(target=notify_daemon, daemon=True).start()
+        with serve(connect_handler, "localhost", 0) as server:
+            port = server.socket.getsockname()[1]
+            print(f"服务启动成功:{port}")
+            logger.info(f"websocket 端口: {port}")
+            logger.info(f"websocket 服务启动完毕")
+            server.serve_forever()
     finally:
         observer.stop()
         observer.join()
 
 
-def watch_credential_file():
-    pass
-
 def start():
     watcher_output_queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=watcher_process, args=(watcher_output_queue,))
+    process = multiprocessing.Process(target=watcher_process, args=(watcher_output_queue,), daemon=True)
     process.start()
 
     start_time = time.time()

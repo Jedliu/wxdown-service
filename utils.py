@@ -5,7 +5,6 @@ import urllib.request
 from pathlib import Path
 
 import requests
-from termcolor import colored
 
 import version
 
@@ -40,9 +39,6 @@ def check_system_proxy(mitm_proxy_address):
 
     return True, '成功', proxy_obj
 
-
-def print_info_message(message):
-    print(colored(message, "grey", None, attrs=["bold"]))
 
 def get_version():
     return f"wxdown-service {version.version}"

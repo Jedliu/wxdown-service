@@ -1,13 +1,12 @@
 import argparse
 import multiprocessing
 import sys
-import os
 
 import mitm
 import utils
 import watcher
-from ui.startup import startup_ui_loop
 from ui.console import console
+from ui.startup import startup_ui_loop
 
 
 def main():

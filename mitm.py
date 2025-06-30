@@ -4,7 +4,6 @@ import os
 import queue
 import re
 import sys
-import threading
 import time
 from pathlib import Path
 
@@ -28,7 +27,7 @@ def start(port: str):
     # 启动 mitmproxy 并加载 credentials 插件
     args = ['-p', port, '-s', PLUGIN_FILE, '--set', 'credentials='+CREDENTIALS_FILE]
     mitm_output_queue = multiprocessing.Queue()
-    mitm_process = multiprocessing.Process(target=mitmproxy_process, args=(args, mitm_output_queue))
+    mitm_process = multiprocessing.Process(target=mitmproxy_process, args=(args, mitm_output_queue), daemon=True)
     mitm_process.start()
 
     start_time = time.time()
@@ -48,17 +47,5 @@ def start(port: str):
         except queue.Empty:
             pass
 
-    if proxy_address:
-        pass
-        # mitmproxy 启动成功，用一个守护线程处理后续日志
-        # threading.Thread(target=handle_mitm_output, args=(mitm_output_queue,), daemon=True).start()
-    else:
-        mitm_process.terminate()
-
     return proxy_address
 
-
-def handle_mitm_output(output_queue: multiprocessing.Queue):
-    while True:
-        message = output_queue.get()
-        logger.info(message)
