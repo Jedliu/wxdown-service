@@ -81,7 +81,7 @@ class CredentialsFileHandler(FileSystemEventHandler):
             notify_clients()
 
 
-def watcher_process(output_queue: multiprocessing.Queue):
+def watcher_process(port: str, output_queue: multiprocessing.Queue):
     sys.stdout = sys.stderr = utils.Capture(output_queue)
 
     Path(CREDENTIALS_JSON_FILE).parent.mkdir(parents=True, exist_ok=True)
@@ -99,20 +99,22 @@ def watcher_process(output_queue: multiprocessing.Queue):
         logger.info(f"开始启动 websocket 服务")
         threading.Thread(target=notify_daemon, daemon=True).start()
 
-        with serve(connect_handler, "localhost", 0) as server:
+        with serve(connect_handler, "localhost", int(port)) as server:
             port = server.socket.getsockname()[1]
             print(f"服务启动成功:{port}")
             logger.info(f"websocket 端口: {port}")
             logger.info(f"websocket 服务启动完毕")
             server.serve_forever()
+    except Exception as e:
+        logger.error(f"watcher启动失败: {e}")
     finally:
         observer.stop()
         observer.join()
 
 
-def start():
+def start(port: str):
     watcher_output_queue = multiprocessing.Queue()
-    process = multiprocessing.Process(target=watcher_process, args=(watcher_output_queue,), daemon=True)
+    process = multiprocessing.Process(target=watcher_process, args=(port, watcher_output_queue,), daemon=True)
     process.start()
 
     start_time = time.time()
@@ -125,6 +127,8 @@ def start():
                 match = re.search(r':(\d+)', line)
                 port = match.group(1)
                 ws_address = f"ws://127.0.0.1:{port}"
+                break
+            elif "Address already in use" in line:
                 break
         except queue.Empty:
             pass
