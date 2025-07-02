@@ -21,10 +21,10 @@ class ExtractWxCredentials:
     def response(self, flow: mitmproxy.http.HTTPFlow):
         # 检查请求的 URL 是否符合过滤器
         parsed_url = urlparse(flow.request.url)
-        # print(parsed_url)
+        print(parsed_url)
         if parsed_url.path == '/s' and parsed_url.query.startswith("__biz="):
             # 提取 __biz 参数
-            # print(f'命中请求')
+            print(f'命中请求')
             query_params = parse_qs(parsed_url.query)
             biz = query_params.get('__biz', [None])[0]
             if biz:

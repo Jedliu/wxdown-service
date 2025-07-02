@@ -1,5 +1,5 @@
+import json
 import multiprocessing
-import operator
 import queue
 import re
 import sys
@@ -7,7 +7,6 @@ import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
-import json
 
 import websockets
 from watchdog.events import FileSystemEventHandler
@@ -37,13 +36,15 @@ def connect_handler(client: ServerConnection):
     logger.debug(f"当前连接客户端数: {len(ws_clients)}")
 
 
-# 通知所有客户端最新的 Credentials 数据
+# 每5s通知一次
 def notify_daemon():
     while True:
         time.sleep(5)
         notify_clients()
+        print(f'clients:{len(ws_clients)}')
 
 
+# 通知所有客户端最新的 Credentials 数据
 def notify_clients():
     try:
         with open(CREDENTIALS_JSON_FILE, 'r') as file:
@@ -56,6 +57,7 @@ def notify_clients():
             ts = int((datetime.now() - timedelta(minutes=30)).timestamp() * 1000)
             valid_data = [x for x in json_data if x['timestamp'] > ts]
             result = json.dumps(valid_data, indent=4)
+            print(f'credentials:{len(valid_data)}')
 
             # 发送数据
             for ws_client in ws_clients:
@@ -96,6 +98,7 @@ def watcher_process(output_queue: multiprocessing.Queue):
         # 启动 websocket 服务
         logger.info(f"开始启动 websocket 服务")
         threading.Thread(target=notify_daemon, daemon=True).start()
+
         with serve(connect_handler, "localhost", 0) as server:
             port = server.socket.getsockname()[1]
             print(f"服务启动成功:{port}")
@@ -117,13 +120,13 @@ def start():
 
     while time.time() - start_time < 10:
         try:
-            message = watcher_output_queue.get(timeout=0.1)
-            if operator.contains(message, "服务启动成功"):
-                match = re.search(r':(\d+)', message)
+            line = watcher_output_queue.get(timeout=0.1)
+            if "服务启动成功" in line:
+                match = re.search(r':(\d+)', line)
                 port = match.group(1)
                 ws_address = f"ws://127.0.0.1:{port}"
                 break
         except queue.Empty:
             pass
 
-    return ws_address
+    return ws_address, watcher_output_queue
