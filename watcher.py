@@ -48,6 +48,8 @@ def notify_clients():
     try:
         with open(CREDENTIALS_JSON_FILE, 'r') as file:
             data = file.read()
+            if len(data) == 0:
+                return
 
             # 处理数据，过滤已失效数据
             json_data = json.loads(data)
