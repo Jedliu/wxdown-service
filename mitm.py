@@ -19,9 +19,12 @@ CREDENTIALS_FILE = str(SRC_PATH / 'resources' / 'data' / 'credentials.json')
 
 def mitmproxy_process(args: list[str], output_queue: multiprocessing.Queue):
     sys.stdout = sys.stderr = utils.Capture(output_queue)
-    print(f'Run mitmdump process {args} ({os.getpid()})...', flush=True)
-    mitmdump(args)
-    logger.info(f'mitmdump process terminated')
+    while True:
+        print(f'Run mitmdump process {args} ({os.getpid()})...', flush=True)
+        mitmdump(args)
+        logger.info(f'mitmdump process terminated')
+        time.sleep(5)
+        logger.info(f'重启 mitm 进程')
 
 
 def start(port: str, debug = False):
