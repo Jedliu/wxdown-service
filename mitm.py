@@ -21,6 +21,7 @@ def mitmproxy_process(args: list[str], output_queue: multiprocessing.Queue):
     sys.stdout = sys.stderr = utils.Capture(output_queue)
     print(f'Run mitmdump process {args} ({os.getpid()})...', flush=True)
     mitmdump(args)
+    logger.info(f'mitmdump process terminated')
 
 
 def start(port: str, debug = False):

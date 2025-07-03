@@ -2,7 +2,7 @@ import logging
 import logging.handlers
 import os
 from pathlib import Path
-
+import version as __version
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
 LOG_PATH = SRC_PATH / 'resources' / 'logs' / 'wxdown.log'
@@ -14,7 +14,8 @@ def setup_logger(
         level: int = logging.INFO,
         when: str = "midnight",
         backup_count: int = 7,
-        console: bool = True
+        console: bool = True,
+        version: str = "",
 ) -> logging.Logger:
     """
     设置并返回一个功能全面的logger。
@@ -25,14 +26,15 @@ def setup_logger(
     :param when: 日志轮转的时间间隔（'midnight'为每天轮转，'S', 'M', 'H', 'D', 'W0'-'W6'等）
     :param backup_count: 保留旧日志文件的数量
     :param console: 是否输出到控制台
+    :param version: 程序版本
     :return: 配置好的logger对象
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.propagate = False  # 防止日志重复
+    _logger = logging.getLogger(name)
+    _logger.setLevel(level)
+    _logger.propagate = False  # 防止日志重复
 
     formatter = logging.Formatter(
-        fmt="[%(asctime)s] [%(levelname)s] [%(name)s] [%(filename)s:%(lineno)d] %(message)s",
+        fmt=f"[%(asctime)s] [%(levelname)s] [%(name)s:v{version}] [%(filename)s:%(lineno)d] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S"
     )
 
@@ -46,15 +48,15 @@ def setup_logger(
         log_file, when=when, backupCount=backup_count, encoding="utf-8"
     )
     file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
+    _logger.addHandler(file_handler)
 
     # 控制台日志处理器
     if console:
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+        _logger.addHandler(console_handler)
 
-    return logger
+    return _logger
 
 
 logger = setup_logger(
@@ -64,4 +66,5 @@ logger = setup_logger(
     when="midnight",
     backup_count=14,
     console=False,
+    version=__version.version,
 )

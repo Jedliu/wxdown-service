@@ -2,10 +2,10 @@ import multiprocessing
 
 from rich.layout import Layout
 
-from ui.header import Header
 from ui.layout import make_layout
-from ui.main import make_message
-from ui.footer import StatusPanel
+from ui.header_panel import HeaderPanel
+from ui.service_panel import ServicePanel
+from ui.status_panel import StatusPanel
 from rich.live import Live
 import time
 import utils
@@ -13,11 +13,13 @@ import cert
 import platform
 import threading
 
+from logger import logger
+
 
 def startup_ui_loop(watcher_output_queue: multiprocessing.Queue, mitm_proxy_address = None, ws_address = None):
     layout = make_layout()
-    layout['header'].update(Header())
-    layout['service'].update(make_message([
+    layout['header'].update(HeaderPanel())
+    layout['service'].update(ServicePanel([
         {'name': 'mitmproxy', 'address': mitm_proxy_address},
         {'name': 'websocket', 'address': ws_address},
     ]))
@@ -42,6 +44,7 @@ def startup_ui_loop(watcher_output_queue: multiprocessing.Queue, mitm_proxy_addr
                                     details=f"执行以下命令安装证书:\n[bold green]{cmd}[/]"))
                     continue
             except Exception as e:
+                logger.warning(e)
                 layout['status'].update(
                     StatusPanel(is_success=False, reason="系统检测 mitmproxy 证书时异常。",
                                 details="请将日志文件发送给开发者"))
@@ -62,5 +65,5 @@ def log_watcher_output(watcher_output_queue: multiprocessing.Queue, layout: Layo
             clients = int(parts[1])
         if parts[0] == 'credentials':
             credentials = int(parts[1])
-        layout['header'].update(Header(clients, credentials))
+        layout['header'].update(HeaderPanel(clients, credentials))
 

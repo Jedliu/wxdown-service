@@ -110,6 +110,7 @@ def watcher_process(port: str, output_queue: multiprocessing.Queue):
     finally:
         observer.stop()
         observer.join()
+        logger.info(f"watcher process terminated")
 
 
 def start(port: str):

@@ -4,7 +4,7 @@ import re
 import urllib.request
 from pathlib import Path
 
-import version
+import version as __version
 from logger import logger
 
 SRC_PATH = Path.absolute(Path(__file__)).parent
@@ -47,7 +47,7 @@ def check_system_proxy(mitm_proxy_address):
 
 
 def get_version():
-    return f"wxdown-service {version.version}"
+    return f"wxdown-service {__version.version}"
 
 class Capture(io.TextIOBase):
     def __init__(self, q: multiprocessing.Queue):

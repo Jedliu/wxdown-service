@@ -11,7 +11,7 @@ class StatusPanel:
 
     def __rich__(self) -> Panel:
         if self.isSuccess:
-            content = f':rocket:服务启动/监听成功！\n\n现在可以将 websocket 地址 ([bold green]{self.ws_address}[/]) 配置到网站中了。'
+            content = f':rocket: 服务启动/监听成功！\n\n现在可以将 websocket 地址 ([bold green]{self.ws_address}[/]) 配置到网站中了。'
         else:
             content = f'失败原因: [bold red]{self.reason}[/]\n\n解决方案: \n\n{self.details}'
 
@@ -21,5 +21,5 @@ class StatusPanel:
             title_align='left',
             highlight=True,
             border_style=f'{'bright_green' if self.isSuccess else 'bright_red'}',
-            padding=(1)
+            padding=1,
         )

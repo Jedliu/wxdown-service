@@ -1,10 +1,7 @@
 from rich.panel import Panel
 from rich.table import Table
-import version
-from pathlib import Path
 
-# SRC_PATH = Path.absolute(Path(__file__)).parent.parent
-# LOGO_FILE = str(SRC_PATH / 'resources' / 'logo.txt')
+import version
 
 logo = r'''                     __
                     /\ \
@@ -16,7 +13,7 @@ logo = r'''                     __
 '''
 
 
-class Header:
+class HeaderPanel:
     def __init__(self, clients = 0, credentials = 0):
         self.clients = clients
         self.credentials = credentials
