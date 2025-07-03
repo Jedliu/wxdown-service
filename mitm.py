@@ -23,7 +23,7 @@ def mitmproxy_process(args: list[str], output_queue: multiprocessing.Queue):
         print(f'Run mitmdump process {args} ({os.getpid()})...', flush=True)
         mitmdump(args)
         logger.info(f'mitmdump process terminated')
-        time.sleep(5)
+        time.sleep(3)
         logger.info(f'重启 mitm 进程')
 
 
@@ -51,13 +51,17 @@ def start(port: str, debug = False):
         except queue.Empty:
             pass
 
-    if debug:
-        threading.Thread(target=log_mitmproxy_output, args=(mitm_output_queue,), daemon=True).start()
+    threading.Thread(target=log_mitmproxy_output, args=(mitm_output_queue, debug), daemon=True).start()
 
     return proxy_address
 
 
-def log_mitmproxy_output(mitm_output_queue: multiprocessing.Queue):
+def log_mitmproxy_output(mitm_output_queue: multiprocessing.Queue, debug):
     while True:
         line = mitm_output_queue.get()
-        logger.debug(line)
+
+        if debug:
+            logger.debug(line)
+        else:
+            # 忽略 mitmproxy 的日志
+            pass
