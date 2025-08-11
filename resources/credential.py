@@ -6,6 +6,7 @@ import time
 from typing import Optional
 from bs4 import BeautifulSoup
 
+
 class ExtractWxCredentials:
     def __init__(self):
         self.cookies = {}

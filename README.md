@@ -70,10 +70,11 @@ cd dist/wxdown-service
 4. 检查网络代理是否设置正确，若设置有误，则提示手动设置后继续
 5. 最后，提示成功
 
+
 ## 打包命令(pyinstaller)
 
 ```shell
-pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources main.py
+pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.py:resources --hiddenimport bs4 main.py
 ```
 
 ### 参数说明
@@ -81,3 +82,4 @@ pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.p
 - `-D` 打包为一个目录
 - `-c` 打开控制台窗口用来输入/输出
 - `-add-data` 添加资源文件
+- `--hiddenimport` 包含额外依赖
