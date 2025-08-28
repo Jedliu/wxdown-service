@@ -40,6 +40,13 @@ def check_system_proxy(mitm_proxy_address):
         return False, '检查代理超时，请稍后重试', '5秒后会自动重试'
     except Exception as e:
         logger.error(f'检查http://mitm.it时异常: {e}')
+
+        try:
+            with urllib.request.urlopen('http://example.com', timeout=10) as response:
+                logger.info('fetch http://example.com success')
+        except Exception as e:
+            logger.error(f'fetch http://example.com failed: {e}')
+
         return False, '检查代理失败', '请联系开发者，并提供日志文件'
 
 
