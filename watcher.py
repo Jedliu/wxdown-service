@@ -47,7 +47,7 @@ def notify_daemon():
 # 通知所有客户端最新的 Credentials 数据
 def notify_clients():
     try:
-        with open(CREDENTIALS_JSON_FILE, 'r') as file:
+        with open(CREDENTIALS_JSON_FILE, 'r', encoding="utf-8") as file:
             data = file.read()
             if len(data) == 0:
                 return
