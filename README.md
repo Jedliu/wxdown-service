@@ -59,6 +59,11 @@ cd dist/wxdown-service
 
 日志文件位于程序目录下的`_internal/resources/logs/wxdown.log`
 
+为了能记录更详细的日志，请用调试模式运行该软件，方法如下：
+```shell
+./wxdown-service -d
+```
+
 
 ## 功能说明
 
@@ -83,3 +88,8 @@ pyinstaller -y --clean -D -c -n wxdown-service --add-data=resources/credential.p
 - `-c` 打开控制台窗口用来输入/输出
 - `-add-data` 添加资源文件
 - `--hiddenimport` 包含额外依赖
+
+## todo
+
+- [ ] 自动设置代理
+- [ ] 自动安装证书
