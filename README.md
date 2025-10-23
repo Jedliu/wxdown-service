@@ -8,6 +8,13 @@
 
 接下来，将 websocket 地址配置到网站中。
 
+> 如果出现证书问题，请使用下面的命令安装证书：
+> 
+> windows:  
+> `certutil -addstore root %userprofile%\.mitmproxy\mitmproxy-ca-cert.cer`
+> 
+> macOS:  
+> `sudo security add-trusted-cert -d -p ssl -p basic -k /Library/Keychains/System.keychain ~/.mitmproxy/mitmproxy-ca-cert.pem`
 
 ## 自定义构建
 
